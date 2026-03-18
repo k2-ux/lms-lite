@@ -149,6 +149,10 @@ User profile picture is not stored in cloud (Locally stored)
 
 ## Demo Video
 
+
+https://github.com/user-attachments/assets/6a2c81c7-87b3-43b5-9973-09be902dcaae
+
+
 ## Notes
 
 The app supports both portrait and landscape mode
