@@ -1,98 +1,119 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import AppHeader from "@/components/AppHeader";
+import CourseCard from "@/components/CourseCard";
+import { getCourses, getInstructors } from "@/services/course.service";
+import { LegendList } from "@legendapp/list";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+export default function CoursesScreen() {
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCourses, setFilteredCourses] = useState<any[]>([]);
+  const [error, setError] = useState(false);
+  async function loadCourses() {
+    try {
+      setError(false);
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+      const courseData = await getCourses();
+      const instructorData = await getInstructors();
 
-export default function HomeScreen() {
+      const coursesList = courseData?.data?.data || [];
+      const instructors = instructorData?.data?.data || [];
+      const combined = coursesList.map((course: any, index: number) => ({
+        ...course,
+        instructor: instructors[index % instructors.length],
+      }));
+      setCourses(combined);
+      setFilteredCourses(combined);
+    } catch (err) {
+      setError(true);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+  useEffect(() => {
+    loadCourses();
+  }, []);
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredCourses(courses);
+      return;
+    }
+
+    const filtered = courses.filter((course) =>
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+
+    setFilteredCourses(filtered);
+  }, [searchQuery, courses]);
+  function onRefresh() {
+    setRefreshing(true);
+    loadCourses();
+  }
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-lg font-semibold mb-4">
+          Failed to load courses
+        </Text>
+
+        <Pressable
+          onPress={loadCourses}
+          className="bg-blue-600 px-6 py-3 rounded-lg"
+        >
+          <Text className="text-white font-semibold">Retry</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View className="flex-1 bg-white">
+      <AppHeader title="Courses" />
+      <TextInput
+        placeholder="Search courses..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        className="border border-gray-300 p-3 rounded-lg mx-4 mt-4"
+        placeholderTextColor={"#555454"}
+      />
+      <LegendList
+        data={filteredCourses}
+        keyExtractor={(item) => String(item.id)}
+        contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
+        estimatedItemSize={120}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        renderItem={({ item }) => (
+          <CourseCard
+            title={item.title}
+            description={item.description}
+            course={item}
+          />
+        )}
+        ListEmptyComponent={() => (
+          <View className="items-center mt-20">
+            <Text className="text-gray-500">No courses found</Text>
+          </View>
+        )}
+      />
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
