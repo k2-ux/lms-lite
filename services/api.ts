@@ -1,6 +1,5 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-// const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const BASE_URL = "https://api.freeapi.app/api/v1";
 const api = axios.create({
   baseURL: BASE_URL,
