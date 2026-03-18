@@ -1,50 +1,160 @@
-# Welcome to your Expo app 👋
+# Mini LMS App (React Native Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a simple Learning Management System (LMS) mobile app built using React Native Expo.  
+The app focuses on core mobile features like authentication, state management, WebView integration, and offline handling.
 
-## Get started
+---
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+### Authentication
 
-2. Start the app
+- User login and registration
+- Token stored securely using Expo SecureStore
+- Auto login when the app restarts
+- Logout with proper state reset
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+### Course Catalog
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- List of courses with instructor details
+- Search functionality to filter courses
+- Pull-to-refresh for updating data
+- Bookmark courses (saved locally)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+### Course Details
 
-When you're ready, run:
+- View full course information
+- Enroll in a course
+- Continue or review completed courses
+- Mark course as completed
+
+---
+
+### WebView Integration
+
+- Course content is shown inside a WebView
+- Native app sends data to WebView using headers
+- WebView can communicate back to the app
+
+---
+
+### Notifications
+
+- Notification when user bookmarks 5 courses
+- Reminder notification after inactivity
+
+---
+
+### Profile Screen
+
+- Update profile image
+- View learning stats:
+  - Enrolled courses
+  - Completed courses
+  - Bookmarked courses
+  - Completion rate
+
+---
+
+## Tech Stack
+
+- React Native Expo
+- TypeScript (strict mode)
+- Expo Router
+- NativeWind (Tailwind CSS)
+- Zustand (state management)
+- AsyncStorage (app data)
+- SecureStore (sensitive data)
+- Expo Notifications
+- WebView
+
+---
+
+## Setup Instructions
 
 ```bash
-npm run reset-project
+git clone <repo-url>
+cd project
+npm install
+npx expo start
+## Environment Variables
+
+Create a .env file in the root folder:
+
+EXPO_PUBLIC_API_BASE_URL=https://api.freeapi.app/api/v1
+
+Restart the app after adding the file:
+
+npx expo start -c
+## APK Build
+1. Development Build (Debug)
+npm install -g eas-cli
+eas login
+eas build:configure
+eas build -p android --profile development
+
+This build is intended for development and testing
+
+Requires running npx expo start to connect
+
+2. Preview Build (Standalone / Release-like)
+eas build -p android --profile preview
+
+This build can be installed and used directly
+
+Recommended for quick testing without setup
+
+## Key Architectural Decisions
+
+Zustand is used for simple and lightweight global state management
+
+SecureStore is used for storing authentication data securely
+
+AsyncStorage is used for storing bookmarks, enrolled, and completed courses
+
+Data is stored per user using email as a unique key
+
+WebView is used to simulate real LMS content delivery
+
+Axios is used with basic error handling and retry logic
+
+## Known Issues / Limitations
+
+No backend persistence for user data (data is stored locally)
+
+Progress is calculated using completed vs enrolled courses, not actual lesson progress
+
+WebView content is static and not from a real backend
+
+User profile picture is not stored in cloud (Locally stored)
+## Screenshots
+
+
+Login Screen
+
+Course List
+
+Course Details
+
+WebView Screen
+
+Profile Screen
+
+## Demo Video
+
+
+## Notes
+
+The app supports both portrait and landscape mode
+
+Basic offline handling is implemented
+
+Focus was on building a clean and scalable structure rather than adding unnecessary features
+
+
+---
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
